@@ -1,0 +1,11 @@
+# ignore init output
+**/.terraform
+
+# contents of keypair
+keypair/*
+!keypair/README.md
+
+config-map-aws-auth.yaml
+
+**/*.tfvars
+!*/example.tfvars
