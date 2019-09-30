@@ -5,23 +5,23 @@ provider "aws" {
 
 provider "http" {}
 
-terraform {
-  backend "s3" {}
-}
+#terraform {
+#  backend "s3" {}
+#}
 
 # data "terraform_remote_state" "network_configuration" {
-#     backend = "s3"
-#     config = {
-#         bucket = "${var.REMOTE_STATE_BUCKET}"
-#         key = "${var.REMOTE_STATE_KEY}"
-#         region = "${var.REGION}"
-#     }
-# }
+#    backend = "s3"
+#    config = {
+#        bucket = "${var.REMOTE_STATE_BUCKET}"
+#        key = "${var.REMOTE_STATE_KEY}"
+#        region = "${var.REGION}"
+#    }
+#}
 
 module "setup" {
   source          = "./00 - Setup"
   key_name        = "${var.KEY_NAME}"
-  key_public_path = "${var.KEY_PUBLIC_PATH}"
+  key_public = "${var.KEY_PUBLIC}"
 }
 
 module "vpc" {
@@ -38,7 +38,7 @@ module "vpc" {
   public_subnet_b_cidr          = "${var.PUBLIC_SUBNET_B_CIDR}"
   private_subnet_c_cidr         = "${var.PRIVATE_SUBNET_C_CIDR}"
   public_subnet_c_cidr          = "${var.PUBLIC_SUBNET_C_CIDR}"
-  kubernetes_cluster_key        = "${var.KUBERNETES_CLUSTER_KEY}"
+  kubernetes_cluster_key        = "kubernetes.io/cluster/${var.KUBERNETES_CLUSTER_NAME}"
   kubernetes_cluster_value      = "${var.KUBERNETES_CLUSTER_VALUE}"
   kubernetes_elb_key            = "${var.KUBERNETES_ELB_KEY}"
   kubernetes_elb_value          = "${var.KUBERNETES_ELB_VALUE}"
@@ -49,7 +49,7 @@ module "vpc" {
 module "instances" {
   source                 = "./02 - Instances"
   name_prefix            = "${var.ENVIRONMENT}"
-  kubernetes_cluster_key = "${var.KUBERNETES_CLUSTER_KEY}"
+  kubernetes_cluster_key = "kubernetes.io/cluster/${var.KUBERNETES_CLUSTER_NAME}"
   vpc_id                 = "${module.vpc.cluster_vpc.id}"
   local_cidr             = "${var.USERS_LOCAL_CIDR}"
   public_subnet_ids      = "${module.vpc.public_subnet_ids}"
@@ -69,7 +69,7 @@ module "nodes" {
   name_prefix                = "${var.ENVIRONMENT}"
   eks_cluster                = "${module.kubernetes.eks_cluster}"
   kubernetes_cluster_name    = "${var.KUBERNETES_CLUSTER_NAME}"
-  kubernetes_cluster_key     = "${var.KUBERNETES_CLUSTER_KEY}"
+  kubernetes_cluster_key     = "kubernetes.io/cluster/${var.KUBERNETES_CLUSTER_NAME}"
   kubernetes_cluster_value   = "owned"
   nodes_iam_instance_profile = "${module.kubernetes.nodes_iam_instance_profile}"
   nodes_security_group       = "${module.instances.nodes_security_group}"

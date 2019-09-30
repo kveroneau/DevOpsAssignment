@@ -9,3 +9,6 @@ config-map-aws-auth.yaml
 
 **/*.tfvars
 !*/example.tfvars
+
+terraform.plan
+terraform.tfstate*
